@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.imagenprogramada.things_swipper"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.imagenprogramada.things_swipper"
