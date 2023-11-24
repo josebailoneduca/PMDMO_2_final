@@ -50,4 +50,10 @@ class DialogoSeleccionSkin: DialogFragment(), AdapterView.OnItemSelectedListener
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if((actividad.applicationContext as Aplicacion).jugando==true)
+            (actividad as MainActivity).empezarPartida()
+    }
 }

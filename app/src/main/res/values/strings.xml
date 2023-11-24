@@ -3,7 +3,7 @@
     <string name="facil">Facil</string>
     <string name="medio">Medio</string>
     <string name="dificil">Difícil</string>
-    <string name="texto_instruciones">Cuando pulsas en una casilla, sale un número que identifica cuántos objetos hay alrededor. Ten cuidado porque si pulsas en una casilla que tenga una objeto condido, perderás. Si crees o tienes la certeza de que hay un objeto, haz un click largo sobre la casilla para señalarla. No hagas un click largo en una casilla donde no hay un objeto porque perderás. Ganas una vez hayas encontrado todos los objetos</string>
+    <string name="texto_instruciones">Destapa todas las casillas excepto las que contienen objetos. Cuando pulsas en una casilla, sale un número que identifica cuántos objetos hay alrededor. Ten cuidado porque si pulsas en una casilla que tenga una objeto escondido, perderás. Si crees o tienes la certeza de que hay un objeto, haz un click largo sobre la casilla para señalarla. No hagas un click largo en una casilla donde no hay un objeto porque perderás. Ganas una vez hayas encontrado todos los objetos</string>
     <string name="instrucciones">Instrucciones</string>
     <string name="configuracion">Configuración</string>
     <string name="llaves">Llaves</string>
@@ -11,4 +11,11 @@
     <string name="gafas">Gafas</string>
     <string name="movil">Movil</string>
     <string name="selecciona_qu_buscar">Selecciona qué buscar</string>
+    <string name="ganaste">¡Ganaste!</string>
+    <string name="perdiste">¡Perdiste!</string>
+    <string name="nuevo_juego">Nuevo juego</string>
+    <string name="configura_dificultad">Configura dificultad</string>
+    <string name="selecciona_skin">Selecciona skin</string>
+    <string name="tiempo">Tiempo:</string>
+    <string name="records">Records</string>
 </resources>

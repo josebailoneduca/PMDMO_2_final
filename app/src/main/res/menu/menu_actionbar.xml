@@ -11,22 +11,22 @@
 
     <item
         android:id="@+id/imNuevoJuego"
-        android:title="Nuevo juego"
+        android:title="@string/nuevo_juego"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/imInstrucciones"
-        android:title="Instrucciones"
+        android:title="@string/instrucciones"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/imConfiguraJuego"
-        android:title="Configura juego"
+        android:title="@string/configura_dificultad"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/imSeleccionaSkin"
-        android:title="Selecciona skin"
+        android:title="@string/selecciona_skin"
         app:showAsAction="never"
         />
 </menu>

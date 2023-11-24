@@ -1,5 +1,6 @@
 package com.imagenprogramada.things_swipper
 
+import android.util.Log
 import com.imagenprogramada.things_swipper.ResultadoPartida
 import com.imagenprogramada.things_swipper.Celda
 import com.imagenprogramada.things_swipper.EnumDificultad
@@ -18,17 +19,36 @@ class Partida(val dificultad: EnumDificultad, val skin: EnumSkin) {
 
     private fun inicializarTablero() {
         //poner minas
-        for (i in 0..dificultad.minas) {
+        for (i in 1..dificultad.minas) {
             ponerMina()
         }
+        imprimeTablero()
         //calcular adyacentes
         for (f in 0..< dificultad.filas){
             for (c in 0..<dificultad.columnas){
-                calcularAdyacentes(f,c)
+                if(tablero[f][c]?.mina!=true) {
+                    calcularAdyacentes(f, c)
+                    imprimeTablero()
+                }
             }
         }
+
+
+
     }
 
+    private fun imprimeTablero(){
+        for (f in 0..< dificultad.filas){
+            var fila=""
+            for (c in 0..<dificultad.columnas){
+                if (tablero[f][c]?.mina==true)
+                    fila+="* "
+                else
+                    fila+=""+(tablero[f][c]?.adyacentes) + " "
+            }
+            Log.i("jjbo",fila)
+        }
+    }
     private fun calcularAdyacentes(fila: Int, columna: Int) {
             var totalminas=0;
         val fmin=maxOf(fila-1,0)
@@ -38,7 +58,7 @@ class Partida(val dificultad: EnumDificultad, val skin: EnumSkin) {
 
         for (f in fmin..fmax){
             for (c in cmin..cmax){
-                if (f!=fila && c!=columna && tablero[f][c]?.mina == true)
+                if (!(f==fila && c==columna) && tablero[f][c]?.mina == true)
                     totalminas++
             }
         }
@@ -58,10 +78,14 @@ class Partida(val dificultad: EnumDificultad, val skin: EnumSkin) {
     }
 
     /**
-     * Devuelve si la celda destapada supone el fin de la partida
+     * Devuelve si destapar la celda permite continuar la partida
+     * Si hay mina devuelve false
+     * Si no hay mina devuelve true
      */
     fun destaparCelda(f:Int,c:Int): Boolean {
         val celda = tablero[f][c]
+        if (celda?.marcado==true)
+            return true
         celda?.descubierto =true
 
         //si no hay mina y no hay minas adyacentes destapamos automaticamente los alrededores
@@ -69,25 +93,24 @@ class Partida(val dificultad: EnumDificultad, val skin: EnumSkin) {
             destaparAutomatico(f,c)
         }
         //devolver resultado
-        return celda?.mina == true
+        return celda?.mina != true
     }
 
     private fun destaparAutomatico(fila: Int, columna: Int) {
-        //si ya esta destapada no actuamos
-        if (tablero[fila][columna]?.descubierto==true)
-            return
         //destapamos los alrededores
-        val fmin=minOf(fila-1,0)
-        val fmax=maxOf(fila+1,dificultad.filas-1)
-        val cmin=minOf(columna-1,0)
-        val cmax=maxOf(columna+1,dificultad.columnas-1)
+        val fmin=maxOf(fila-1,0)
+        val fmax=minOf(fila+1,dificultad.filas-1)
+        val cmin=maxOf(columna-1,0)
+        val cmax=minOf(columna+1,dificultad.columnas-1)
 
         for (f in fmin..fmax){
             for (c in cmin..cmax){
-                tablero[f][c]?.descubierto=true
                 //llamada recursiva si es 0
-                if (tablero[f][c]?.adyacentes==0)
-                    destaparAutomatico(f,c)
+                if(tablero[f][c]?.descubierto!=true) {
+                    tablero[f][c]?.descubierto = true
+                    if (tablero[f][c]?.adyacentes == 0)
+                        destaparAutomatico(f, c)
+                }
             }
         }
     }
