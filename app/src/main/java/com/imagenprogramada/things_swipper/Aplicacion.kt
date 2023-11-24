@@ -12,6 +12,17 @@ class Aplicacion: Application() {
         super.onCreate()
         dificultad=EnumDificultad.FACIL
         skin=EnumSkin.LLAVES
+    }
 
+    fun empezarPartida(){
+        this.partida = Partida(dificultad,skin)
+        this.jugando=true
+    }
+
+    fun difucultadPartida():EnumDificultad{
+        return partida.dificultad
+    }
+    fun skinPartida():EnumSkin{
+        return partida.skin
     }
 }
