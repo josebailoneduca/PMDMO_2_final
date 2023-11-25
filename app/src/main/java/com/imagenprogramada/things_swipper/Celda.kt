@@ -1,24 +1,15 @@
 package com.imagenprogramada.things_swipper
 
-class Celda() {
+/**
+ * Guarda el estado de una celda del tablero. Si tiene mina, cuantas minas adyacentes, si esta descubierto o marcado
+ */
+class Celda {
     var mina=false
-        get() = field
-        set(value) {
-            field = value
-        }
+
     var adyacentes=0
-        get() = field
-        set(value) {
-            field = value
-        }
+
     var descubierto=false
-        get() = field
-        set(value) {
-            field = value
-        }
+
     var marcado=false
-        get() = field
-        set(value) {
-            field = value
-        }
+
 }

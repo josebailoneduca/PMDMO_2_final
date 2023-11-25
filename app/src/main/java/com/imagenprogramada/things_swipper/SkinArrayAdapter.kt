@@ -8,27 +8,46 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 
-class SkinArrayAdapter( context: Context, val itemLayout: Int, val skins: Array<out EnumSkin>) :
+/**
+ * Adaptador para el spiner del dialogo de selección de de skin del juego
+ */
+class SkinArrayAdapter(context: Context, private val itemLayout: Int, private val skins: Array<out EnumSkin>) :
     ArrayAdapter<EnumSkin>(context, itemLayout, skins) {
 
-    var dropdownView:Int=0;
+    //vista para los items del dropdown
+    var dropdownView:Int=0
 
+
+    /**
+     * Crea la vista para el item principal
+     */
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflador: LayoutInflater = LayoutInflater.from(context)
-        val vFila:View = inflador.inflate(itemLayout,parent,false);
-        ((vFila.findViewById(R.id.nombre)) as TextView).setText(context.resources.getString(skins[position].nombre))
+        //reciclar vista existente o crear una nueva si no existe
+        var vFila =convertView
+        if (vFila==null)
+         vFila = inflador.inflate(itemLayout,parent,false)
+        //rellenar vista
+        ((vFila?.findViewById(R.id.nombre)) as TextView).text = context.resources.getString(skins[position].nombre)
         (( vFila.findViewById(R.id.imagenIcono)) as ImageView).setImageResource(skins[position].imagen)
-        return vFila;
+        //retornar vista
+        return vFila
     }
 
+    /**
+     * Crea la vista para los items del dropdown
+     */
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflador: LayoutInflater = LayoutInflater.from(context)
-        val vFila:View = inflador.inflate(dropdownView,parent,false);
-        ((vFila.findViewById(R.id.nombre)) as TextView).setText(context.resources.getString(skins[position].nombre))
+        val vFila:View = inflador.inflate(dropdownView,parent,false)
+        ((vFila.findViewById(R.id.nombre)) as TextView).text = context.resources.getString(skins[position].nombre)
         (( vFila.findViewById(R.id.imagenIcono)) as ImageView).setImageResource(skins[position].imagen)
-        return vFila;
+        return vFila
     }
 
+    /**
+     * Almacena la ResourceId de la vista usada para el dropdown
+     */
     override fun setDropDownViewResource(dropdownView: Int) {
         this.dropdownView=dropdownView
     }

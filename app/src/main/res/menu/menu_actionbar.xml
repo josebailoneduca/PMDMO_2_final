@@ -5,7 +5,7 @@
     <item
         android:id="@+id/icono"
         android:icon="@drawable/movil"
-        android:title="Skin"
+        android:title=""
         app:showAsAction="ifRoom"
         />
 

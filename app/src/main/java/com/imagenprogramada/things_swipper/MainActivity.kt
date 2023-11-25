@@ -1,9 +1,7 @@
 package com.imagenprogramada. things_swipper
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
-import android.util.Log
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
@@ -16,136 +14,195 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentManager
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 class MainActivity : AppCompatActivity(){
-    lateinit var  aplicacion:Aplicacion
+    //referencia a la aplicacion
+    private lateinit var  aplicacion:Aplicacion
+    //referencia al menu superior
     lateinit var menu:Menu
-    lateinit var tableroBotones:Array<Array<ImageButton?>>
+    //tabla donde se almacenan los botones de la interfaz para la partida
+    private lateinit var tableroBotones:Array<Array<ImageButton?>>
 
+
+    /**
+     * OnCreate. inicializa listener de boton de jugar y actualiza los records en la vista
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         aplicacion = application as Aplicacion
-        findViewById<Button>(R.id.btnEmpezarPartida).setOnClickListener(View.OnClickListener {  empezarPartida()})
+        findViewById<Button>(R.id.btnEmpezarPartida).setOnClickListener {empezarPartida()}
         actualizarRecords()
     }
 
+    /**
+     * Actualiza la vista con los datos de los records
+     */
+    private fun actualizarRecords(){
+        findViewById<TextView>(R.id.lbRecordFacil).text = milisegundosToString(aplicacion.mejorResultadoFacil)
+        findViewById<TextView>(R.id.lbRecordMedio).text = milisegundosToString(aplicacion.mejorResultadoMedio)
+        findViewById<TextView>(R.id.lbRecordDificil).text=milisegundosToString(aplicacion.mejorResultadoDificil)
+    }
 
 
+    /**
+     * Convierte un long en un string mm:ss o "--" doble guión si el long es 0
+     */
+    private fun milisegundosToString(milisegundos:Long):String{
+        if (milisegundos==0L)
+            return "--"
+        val duration = milisegundos.toDuration(DurationUnit.MILLISECONDS)
+        return duration.toComponents { minutes, seconds, _ ->
+            String.format("%02d:%02d", minutes, seconds)
+        }
+    }
+
+    /**
+     * OnCreateOptionsMenu. Configura el menu de opciones de la aplicacion
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_actionbar,menu)
-        this.menu= menu!!
-        menu?.getItem(0)?.setIcon(aplicacion.skin.imagen)
+        this.menu= menu!!//doble exclamacion para asegurar que no es null
+        //actualizar imagen de skin seleccionada en la barra
+        menu.getItem(0)?.setIcon(aplicacion.skin.imagen)
         return true
     }
 
 
+    /**
+     * Gestion del item de menu clickado
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        var id:Int = item.getItemId()
-        when (id){
+        when (item.itemId){
             R.id.imInstrucciones -> mostrarInstrucciones()
             R.id.imConfiguraJuego -> abrirConfiguracion()
-            R.id.imSeleccionaSkin -> seleccionarSkin();
+            R.id.imSeleccionaSkin -> seleccionarSkin()
             R.id.imNuevoJuego -> empezarPartida()
         }
         return super.onOptionsItemSelected(item)
     }
 
-    public fun empezarPartida() {
+    /**
+     * Empieza la partida. Ordea a aplicacion crear nueva partida y actualiza la vista acorde a la
+     * partida crada
+     */
+     fun empezarPartida() {
+        //empezar partida
         aplicacion.empezarPartida()
-        val dificultad : EnumDificultad = aplicacion.getDifucultadPartida()
+
+        //crear grid
+        val dificultad : EnumDificultad = aplicacion.dificultad
         val grid = crearGrid(dificultad.filas,dificultad.columnas)
+
+        //crear botones y guardar referencia
         tableroBotones=Array(dificultad.filas) { fila -> Array(dificultad.columnas){ col-> crearBoton(fila,col,grid) } }
+
+        //ocultar boton de empezar partida, records y mensaje de victoria/derrota
         findViewById<Button>(R.id.btnEmpezarPartida).visibility=View.GONE
         findViewById<TextView>(R.id.txtFin).visibility=View.GONE
         findViewById<LinearLayout>(R.id.panelRecords).visibility=View.GONE
-        val cronometro:Chronometer = findViewById<Chronometer>(R.id.cronometro)
+
+        //iniciar tiempo de la partida
+        val cronometro = findViewById<Chronometer>(R.id.cronometro)
             cronometro.base = SystemClock.elapsedRealtime()
             cronometro.start()
-
      }
 
+    /**
+     * Acciones tras terminar la partida
+     * @param exito True si se ha ganado la partida, False si se ha perdido
+     */
     private fun terminarPartida(exito:Boolean){
-        val cronometro:Chronometer = findViewById<Chronometer>(R.id.cronometro)
+        //parar cronometro
+        val cronometro = findViewById<Chronometer>(R.id.cronometro)
         cronometro.stop()
+        //mostrar records, boton de nueva partida y texto de exito/derrota
         val texto:TextView=findViewById<Button>(R.id.txtFin)
         texto.visibility=View.VISIBLE
         findViewById<Button>(R.id.btnEmpezarPartida).visibility=View.VISIBLE
         findViewById<LinearLayout>(R.id.panelRecords).visibility=View.VISIBLE
+        //configurar el texto de exito/derrota y registrar el nuevo tiempo
         if (exito) {
-            texto.setText(getString(R.string.ganaste))
-            aplicacion.registraResultado(SystemClock.elapsedRealtime() - cronometro.getBase())
+            texto.text = getString(R.string.ganaste)
+            aplicacion.registraResultado(SystemClock.elapsedRealtime() - cronometro.base)
+            actualizarRecords()
         }
         else
-            texto.setText(getString(R.string.perdiste))
-
-        actualizarRecords()
+            texto.text = getString(R.string.perdiste)
     }
 
-    fun actualizarRecords(){
-        findViewById<TextView>(R.id.lbRecordFacil).setText(milisegundosToString(aplicacion.mejorResultadoFacil))
-        findViewById<TextView>(R.id.lbRecordMedio).setText(milisegundosToString(aplicacion.mejorResultadoMedio))
-        findViewById<TextView>(R.id.lbRecordDificil).setText(milisegundosToString(aplicacion.mejorResultadoDificil))
-    }
-    fun milisegundosToString(milisegundos:Long):String{
-        if (milisegundos==0L)
-            return "--"
-        val duration = milisegundos.toDuration(DurationUnit.MILLISECONDS)
-        return duration.toComponents { minutes, seconds, _ ->
-                String.format("%02d:%02d", minutes, seconds)
-            }
-    }
 
-    private fun onLongBotonClicked(v: View?,fila: Int,columna: Int) {
-        val boton = tableroBotones[fila][columna]
-        boton?.setBackgroundResource(R.drawable.bandera)
-        boton?.setBackgroundResource(R.drawable.parrilla)
-        val resultado = aplicacion.marcarCelda(fila,columna)
+    /**
+     * Gestion de pulsacion larga. Ordena a la aplicacion marcar una casilla y actualiza la vista
+     * segun el resultado
+     */
+    private fun onLongBotonClicked(fila: Int,columna: Int) {
+        //recoger resultado del marcado o volver si es nulo
+        val resultado = aplicacion.marcarCelda(fila,columna) ?: return
+
+
+        //actualizar iconos de boton
         actualizarEstadoBotones()
-        if (resultado?.fracaso==true) {
+
+        //comprobar si ha terminado la partida y mostrar contenido de la casilla si toca
+        val boton = tableroBotones[fila][columna]
+        if (resultado.fracaso) {
             val celda = aplicacion.getTableroPartida()[fila][columna]
             if (boton!=null &&celda!=null)
                 destapaNumero(boton,celda.adyacentes)
             terminarPartida(false)
         }
-        else if (resultado?.victoria==true)
+        else if (resultado.victoria)
             terminarPartida(true)
     }
 
-    private fun onBotonClicked(v: View?,fila: Int,columna: Int) {
+    /**
+     * Gestion de click corto. Ordena a la partida destapar una celda y destapa su contenido
+     * Comprueba si el destapado implica la perdida de la partida
+     */
+    private fun onBotonClicked(fila: Int,columna: Int) {
         if (!aplicacion.destaparCelda(fila,columna))
             terminarPartida(false)
         actualizarEstadoBotones()
     }
 
+    /**
+     * Actualiza los iconos de los botones segun el estado del tablero
+     */
     private fun actualizarEstadoBotones() {
        val tablero=aplicacion.getTableroPartida()
-        if (tablero==null)
-            return
-        for (f in 0..<tablero.size)
+        //recorrer el tablero
+        for (f in tablero.indices)
             for (c in 0..<tablero[f].size){
                 val celda=tablero[f][c]
                 val boton = tableroBotones[f][c]
                 //reset antes de actualizacion
                 boton?.setImageResource(android.R.color.transparent)
+                //bandera para marcados
                 if (celda?.marcado==true)
                     boton?.setImageResource(R.drawable.bandera)
+                //gestionar descuriertos
                 else if (celda?.descubierto == true){
-                    if (celda?.mina==true)
-                        boton?.setImageResource(aplicacion.getSkinPartida().imagen)
+                    //pinitado de minas de descubiertos
+                    if (celda.mina)
+                        boton?.setImageResource(aplicacion.skin.imagen)
                     else {
-                        if (boton != null && celda!=null) {
-                            destapaNumero(boton,celda.adyacentes)
-                        }
+                        //pintado de numero de descubiertos
+                        if (boton != null )  destapaNumero(boton,celda.adyacentes)
+
                     }
                 }
             }
     }
 
+    /**
+     * Destapa una casilla mostrando el numero de minas adyacentes de la misma
+     */
     private fun destapaNumero(boton:ImageButton,numero:Int){
         val imagenNumero:Int = when (numero) {
             1 -> R.drawable.n1
@@ -158,13 +215,21 @@ class MainActivity : AppCompatActivity(){
             8 -> R.drawable.n8
             else -> {R.drawable.n0}
         }
-        boton?.setImageResource(imagenNumero)
-        boton?.setBackgroundResource(R.drawable.parrilla)
+        boton.setImageResource(imagenNumero)
+        boton.setBackgroundResource(R.drawable.parrilla)
     }
 
-    private fun crearBoton(fila: Int,columna: Int,grid: GridLayout): ImageButton {
+    /**
+     * Crea un boton y lo introduce en el grid
+     * @param fila La fila en la qu poner el boton
+     * @param columna La columna en la que poner el boton
+     * @param grid Grid en el que poner el boton
+     * @return el boton creado
+     * @return el boton creado
+     */
+    private fun crearBoton(fila: Int,columna: Int,grid: GridLayout):ImageButton {
         //creacion del boton y caracteristicas basicas
-        val btn: ImageButton = ImageButton(this)
+        val btn = ImageButton(this)
         btn.id = View.generateViewId()
         btn.scaleType=ImageView.ScaleType.FIT_CENTER
         //Definicion de los parametros de layout
@@ -176,27 +241,28 @@ class MainActivity : AppCompatActivity(){
         //margen
         val margen: Int =
             TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0.1f, resources.displayMetrics)
-                .toInt();
+                .toInt()
         params.setMargins(margen, margen, margen, margen)
         //aplicar parametros de layout
         btn.layoutParams = params
 
         //listeners
         btn.setOnClickListener { v ->
-            onBotonClicked(v,fila,columna)
+            onBotonClicked(fila,columna)
         }
         btn.setOnLongClickListener{ v ->
-            onLongBotonClicked(v,fila,columna)
+            onLongBotonClicked(fila,columna)
             return@setOnLongClickListener true
         }
-
+        //poner el boton en el grid
         grid.addView(btn)
         return btn
     }
 
 
     /**
-     * Construye un gridlayout segun los parametros suministrados
+     * Construye un gridlayout segun los parametros suministrados y lo pone en el contenedor
+     * de la vista
      *
      * @param filas Las filas del grid
      * @param columnas Las columnas del grid
@@ -204,7 +270,7 @@ class MainActivity : AppCompatActivity(){
     private fun crearGrid(filas: Int, columnas: Int):GridLayout {
 
         //crear el grid
-        var grid = GridLayout(this)
+        val grid = GridLayout(this)
         grid.columnCount = columnas
         grid.rowCount = filas
         grid.id = View.generateViewId()
@@ -224,22 +290,31 @@ class MainActivity : AppCompatActivity(){
         return grid
     }
 
+    /**
+     * Inicia la seleccion de skin generando un dialogo de DialogoSeleccionSkin
+     */
     private fun seleccionarSkin() {
-
         val fm: FragmentManager = supportFragmentManager
-       val dialogo:DialogoSeleccionSkin = DialogoSeleccionSkin()
+        val dialogo = DialogoSeleccionSkin()
         dialogo.show(fm, "dialogo_skins")
       }
 
+    /**
+     * Abre el dialogo de configuracion de dificultad
+     */
     private fun abrirConfiguracion() {
         val alertDialog:AlertDialog.Builder = AlertDialog.Builder(this)
-        alertDialog.setTitle(getString(R.string.configuracion));
+        alertDialog.setTitle(getString(R.string.configuracion))
+        //opciones entre la que elegir
         val opciones = arrayOf(
             getString(EnumDificultad.FACIL.texto),
             getString(EnumDificultad.MEDIO.texto),
             getString(EnumDificultad.DIFICIL.texto)
             )
-        val seleccionado:Int = aplicacion.dificultad.indice;
+        //opcion seleccionada actualmente
+        val seleccionado:Int = aplicacion.dificultad.indice
+
+        //generar dialgo
         alertDialog.setSingleChoiceItems(opciones,seleccionado){ dialogo,indice ->
             when(indice){
                 0->{aplicacion.dificultad=EnumDificultad.FACIL}
@@ -248,10 +323,19 @@ class MainActivity : AppCompatActivity(){
             }
 
         }
-        alertDialog.setPositiveButton("Ok"){_,_->empezarPartida()}
-        alertDialog.create();
-        alertDialog.show();
+        //agregar boton de cerrar el dialogo. Si hay partida empezada la reinicia
+        alertDialog.setPositiveButton("Ok"){_,_->
+            if(aplicacion.jugando)
+                empezarPartida()
+        }
+        //crear y mostrar el dialogo
+        alertDialog.create()
+        alertDialog.show()
     }
+
+    /**
+     * Muestra el dialogo de instrucciones
+     */
     private fun mostrarInstrucciones() {
         val ad = AlertDialog.Builder(this)
         ad.apply {

@@ -1,5 +1,8 @@
 package com.imagenprogramada.things_swipper
 
+/**
+ * Enum de skins
+ */
 enum class EnumSkin (val imagen:Int, val nombre:Int, val indice:Int){
     LLAVES(R.drawable.llaves, R.string.llaves,0),
     CARTERA(R.drawable.cartera, R.string.cartera,1),

@@ -4,6 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="gris">#9C9C9C</color>
     <color name="grisClaro">#B9B9B9</color>
-    <color name="transparente">#00FFFFFF</color>
     <color name="blancoTransparente">#DFFFFFFF</color>
 </resources>
