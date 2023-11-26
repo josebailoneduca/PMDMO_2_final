@@ -3,7 +3,7 @@
     <string name="facil">Easy</string>
     <string name="medio">Medium</string>
     <string name="dificil">Hard</string>
-    <string name="texto_instruciones">Uncover all boxes except those containing items. When you click on a box, a number appears telling you how many objects there are around it. Be careful because if you click on a square that has a hidden object, you will lose. If you believe or are certain that there is an object, long click on the box to highlight it. Do not make a long click on a square where there is no object because you will lose. You win once you have found all the objects.</string>
+    <string name="texto_instruciones">Uncover all squares except those containing items. When you click on a square a number appears telling you how many objects there are around it. Be careful because if you click on a square that has a hidden object you will lose. If you believe or are certain that there is an object then long click on the box to highlight it. Do not make a long click on a square where there is no object because you will lose. You win once you have found all the objects.</string>
     <string name="instrucciones">Instructions</string>
     <string name="configuracion">Configuration</string>
     <string name="llaves">Keys</string>
