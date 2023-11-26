@@ -102,7 +102,7 @@ class Partida(val dificultad: EnumDificultad) {
         if (celda?.marcado==true)
             return true
         //Destapar la celda
-        destaparAutomatico(f,c)
+        destapadoAutomatico(f,c)
         //devolver resultado
         return celda?.mina != true
     }
@@ -112,7 +112,7 @@ class Partida(val dificultad: EnumDificultad) {
      * todas las celdas que no tienen minas adyacentes que esten conectadas con la celda actual
      * tengan minas adyacentes
      */
-    private fun destaparAutomatico(fila: Int, columna: Int) {
+    private fun destapadoAutomatico(fila: Int, columna: Int) {
         val celda = tablero[fila][columna]
         celda?.descubierto =true
 
@@ -131,7 +131,7 @@ class Partida(val dificultad: EnumDificultad) {
             for (c in cmin..cmax){
                 //destapar si no destapado
                 if(tablero[f][c]?.descubierto!=true) {
-                     destaparAutomatico(f, c)
+                     destapadoAutomatico(f, c)
                 }
             }
         }

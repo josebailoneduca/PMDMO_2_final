@@ -40,27 +40,7 @@ class MainActivity : AppCompatActivity(){
         actualizarRecords()
     }
 
-    /**
-     * Actualiza la vista con los datos de los records
-     */
-    private fun actualizarRecords(){
-        findViewById<TextView>(R.id.lbRecordFacil).text = milisegundosToString(aplicacion.mejorResultadoFacil)
-        findViewById<TextView>(R.id.lbRecordMedio).text = milisegundosToString(aplicacion.mejorResultadoMedio)
-        findViewById<TextView>(R.id.lbRecordDificil).text=milisegundosToString(aplicacion.mejorResultadoDificil)
-    }
 
-
-    /**
-     * Convierte un long en un string mm:ss o "--" doble guión si el long es 0
-     */
-    private fun milisegundosToString(milisegundos:Long):String{
-        if (milisegundos==0L)
-            return "--"
-        val duration = milisegundos.toDuration(DurationUnit.MILLISECONDS)
-        return duration.toComponents { minutes, seconds, _ ->
-            String.format("%02d:%02d", minutes, seconds)
-        }
-    }
 
     /**
      * OnCreateOptionsMenu. Configura el menu de opciones de la aplicacion
@@ -84,7 +64,7 @@ class MainActivity : AppCompatActivity(){
             R.id.imSeleccionaSkin -> seleccionarSkin()
             R.id.imNuevoJuego -> empezarPartida()
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     /**
@@ -93,10 +73,10 @@ class MainActivity : AppCompatActivity(){
      */
      fun empezarPartida() {
         //empezar partida
-        aplicacion.empezarPartida()
+
 
         //crear grid
-        val dificultad : EnumDificultad = aplicacion.dificultad
+        val dificultad : EnumDificultad = aplicacion.empezarPartida()
         val grid = crearGrid(dificultad.filas,dificultad.columnas)
 
         //crear botones y guardar referencia
@@ -141,7 +121,7 @@ class MainActivity : AppCompatActivity(){
      * Gestion de pulsacion larga. Ordena a la aplicacion marcar una casilla y actualiza la vista
      * segun el resultado
      */
-    private fun onLongBotonClicked(fila: Int,columna: Int) {
+    private fun marcarCelda(fila: Int, columna: Int) {
         //recoger resultado del marcado o volver si es nulo
         val resultado = aplicacion.marcarCelda(fila,columna) ?: return
 
@@ -165,7 +145,7 @@ class MainActivity : AppCompatActivity(){
      * Gestion de click corto. Ordena a la partida destapar una celda y destapa su contenido
      * Comprueba si el destapado implica la perdida de la partida
      */
-    private fun onBotonClicked(fila: Int,columna: Int) {
+    private fun destaparCelda(fila: Int, columna: Int) {
         if (!aplicacion.destaparCelda(fila,columna))
             terminarPartida(false)
         actualizarEstadoBotones()
@@ -181,12 +161,12 @@ class MainActivity : AppCompatActivity(){
             for (c in 0..<tablero[f].size){
                 val celda=tablero[f][c]
                 val boton = tableroBotones[f][c]
-                //reset antes de actualizacion
+                //reset antes de actualizacion de imagenes de los botones
                 boton?.setImageResource(android.R.color.transparent)
                 //bandera para marcados
                 if (celda?.marcado==true)
                     boton?.setImageResource(R.drawable.bandera)
-                //gestionar descuriertos
+                //gestionar cesdas descubiertas
                 else if (celda?.descubierto == true){
                     //pinitado de minas de descubiertos
                     if (celda.mina)
@@ -194,7 +174,6 @@ class MainActivity : AppCompatActivity(){
                     else {
                         //pintado de numero de descubiertos
                         if (boton != null )  destapaNumero(boton,celda.adyacentes)
-
                     }
                 }
             }
@@ -248,10 +227,10 @@ class MainActivity : AppCompatActivity(){
 
         //listeners
         btn.setOnClickListener { v ->
-            onBotonClicked(fila,columna)
+            destaparCelda(fila,columna)
         }
         btn.setOnLongClickListener{ v ->
-            onLongBotonClicked(fila,columna)
+            marcarCelda(fila,columna)
             return@setOnLongClickListener true
         }
         //poner el boton en el grid
@@ -329,8 +308,7 @@ class MainActivity : AppCompatActivity(){
                 empezarPartida()
         }
         //crear y mostrar el dialogo
-        alertDialog.create()
-        alertDialog.show()
+        alertDialog.create().show()
     }
 
     /**
@@ -346,5 +324,25 @@ class MainActivity : AppCompatActivity(){
     }
 
 
+    /**
+     * Actualiza la vista con los datos de los records
+     */
+    private fun actualizarRecords(){
+        findViewById<TextView>(R.id.lbRecordFacil).text = milisegundosToString(aplicacion.mejorResultadoFacil)
+        findViewById<TextView>(R.id.lbRecordMedio).text = milisegundosToString(aplicacion.mejorResultadoMedio)
+        findViewById<TextView>(R.id.lbRecordDificil).text=milisegundosToString(aplicacion.mejorResultadoDificil)
+    }
 
+
+    /**
+     * Convierte un long en un string mm:ss o "--" doble guión si el long es 0
+     */
+    private fun milisegundosToString(milisegundos:Long):String{
+        if (milisegundos==0L)
+            return "--"
+        val duration = milisegundos.toDuration(DurationUnit.MILLISECONDS)
+        return duration.toComponents { minutes, seconds, _ ->
+            String.format("%02d:%02d", minutes, seconds)
+        }
+    }
 }

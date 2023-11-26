@@ -46,6 +46,16 @@ class Aplicacion: Application() {
         skin=EnumSkin.LLAVES
     }
 
+
+    /**
+     * Empieza una nueva partida
+     */
+    fun empezarPartida():EnumDificultad{
+        this.partida = Partida(dificultad)
+        this.jugando=true
+        return dificultad
+    }
+
     /**
      * Devuelve el trablero de la partida
      */
@@ -54,11 +64,18 @@ class Aplicacion: Application() {
     }
 
     /**
-     * Empieza una nueva partida
+     * Ordena a la partida marcar una celda. Devuelve el resultado de haberla marcado
      */
-    fun empezarPartida(){
-        this.partida = Partida(dificultad)
-        this.jugando=true
+    fun marcarCelda(fila: Int, columna: Int): ResultadoPartida? {
+        //ignorar si no se esta jugando
+        if (!jugando)
+            return null
+        //marcar y recoger el resultado de haber marcado
+        val resultado=partida.marcarCelda(fila,columna)
+        //si no es fracaso ni victoria seguimos jugando
+        jugando=!(resultado.fracaso||resultado.victoria)
+        //devolver el resultado
+        return resultado
     }
 
     /**
@@ -78,20 +95,7 @@ class Aplicacion: Application() {
         return resultado
     }
 
-    /**
-     * Ordena a la partida marcar una celda. Devuelve el resultado de haberla marcado
-     */
-    fun marcarCelda(fila: Int, columna: Int): ResultadoPartida? {
-        //ignorar si no se esta jugando
-        if (!jugando)
-            return null
-        //marcar y recoger el resultado de haber marcado
-        val resultado=partida.marcarCelda(fila,columna)
-        //si no es fracaso ni victoria seguimos jugando
-        jugando=!(resultado.fracaso||resultado.victoria)
-        //devolver el resultado
-        return resultado
-    }
+
 
     /**
      * registra un resultado de partida
